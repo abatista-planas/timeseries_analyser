@@ -2,10 +2,12 @@ import os
 from typing import List
 
 from preprocessing.dimension_reduction import reduce_dimensions
+from preprocessing.feature_engineering import add_features
 from preprocessing.handle_nan import treat_nan_dataframe
 from preprocessing.high_correlation import drop_highly_correlated_columns
 from preprocessing.load_timeseries import load_timeseries_file
 from preprocessing.low_variance import drop_low_variance_columns
+from preprocessing.normalization import normalize_features
 
 
 def processing_data(
@@ -35,11 +37,31 @@ def processing_data(
         raise FileNotFoundError(f"File not found: {file_path}")
 
     df = load_timeseries_file(file_path, time_column, target_column, dropped_columns)
+
     df = treat_nan_dataframe(df, time_column, k_neighbors=10)
+
     df = drop_low_variance_columns(df, time_column, target_column, threshold=1e-8)
+
     df = drop_highly_correlated_columns(df, time_column, target_column, threshold=0.98)
+
+    df = normalize_features(df, time_column, target_column, strategy="StandardScaler")
+
     df = reduce_dimensions(
-        df, time_column, target_column, method="PCA", pca_variance=0.99
+        df, time_column, target_column, method="PCA", pca_variance=0.975
     )
+
+    df = add_features(
+        df,
+        time_column,
+        target_column,
+        rolling_windows=[10],
+        stats=["mean", "std", "min", "max"],
+    )
+
+    df = treat_nan_dataframe(df, time_column, k_neighbors=10)
+
+    df = drop_low_variance_columns(df, time_column, target_column, threshold=1e-8)
+
+    df = drop_highly_correlated_columns(df, time_column, target_column, threshold=0.98)
 
     return df
