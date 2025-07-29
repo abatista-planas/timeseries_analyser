@@ -1,8 +1,65 @@
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
+
+
+def treat_nan_dataframe(
+    df: pd.DataFrame,
+    time_column: str,
+    strategies: Optional[dict] = None,
+    nan_threshold: float = 0.33,
+    k_neighbors: int = 10,
+) -> pd.DataFrame:
+    """
+    Treats NaNs in a DataFrame:
+      - First, handles the time column with the specified/default strategy ('model').
+      - Then, handles all other columns (target/features) with 'neighbors_mean' strategy by default.
+
+    Args:
+        df: Input DataFrame.
+        time_column: Name of the time/datetime column.
+        strategies: Optional dict mapping columns to dicts of handle_nan_column arguments.
+        nan_threshold: If >nan_threshold NaN, always fill with mean.
+        k_neighbors: Number of neighbors for neighbors_mean.
+
+    Returns:
+        pd.DataFrame: DataFrame with NaNs treated and time column as datetime.
+    """
+    out_df = df.copy()
+    strategies = strategies or {}
+
+    # 1. Treat time column first
+    time_args = strategies.get(time_column, {"strategy": "model"})
+    filled_time, drop_time_idx = handle_nan_column(
+        out_df[time_column], predictors=None, nan_threshold=nan_threshold, **time_args
+    )
+    out_df[time_column] = pd.to_datetime(filled_time)
+    if drop_time_idx:
+        out_df = out_df.drop(index=drop_time_idx)
+
+    # 2. Treat all other columns with neighbors_mean unless overridden
+    for col in out_df.columns:
+        if col == time_column:
+            continue
+        col_args = strategies.get(
+            col, {"strategy": "neighbors_mean", "k_neighbors": k_neighbors}
+        )
+        predictors = None
+        if col_args.get("strategy") == "model":
+            predictors = out_df.drop(columns=[col])
+        filled_col, drop_col_idx = handle_nan_column(
+            out_df[col], predictors=predictors, nan_threshold=nan_threshold, **col_args
+        )
+        out_df[col] = filled_col
+        if drop_col_idx:
+            out_df = out_df.drop(index=drop_col_idx)
+
+    out_df = out_df.reset_index(drop=True)
+    return out_df
 
 
 def handle_nan_column(
@@ -94,12 +151,25 @@ def handle_nan_column(
         s_filled = s.copy()
         for idx in s[nan_mask].index:
             i = s.index.get_loc(idx)
-            neighbors = []
-            for offset in range(1, k_neighbors // 2 + 1):
-                if i - offset >= 0 and not pd.isna(s.iloc[i - offset]):
-                    neighbors.append(s.iloc[i - offset])
-                if i + offset < len(s) and not pd.isna(s.iloc[i + offset]):
-                    neighbors.append(s.iloc[i + offset])
+            # Up to k_neighbors before
+            before = []
+            count = 0
+            j = i - 1
+            while j >= 0 and count < k_neighbors:
+                if not pd.isna(s.iloc[j]):
+                    before.append(s.iloc[j])
+                    count += 1
+                j -= 1
+            # Up to k_neighbors after
+            after = []
+            count = 0
+            j = i + 1
+            while j < len(s) and count < k_neighbors:
+                if not pd.isna(s.iloc[j]):
+                    after.append(s.iloc[j])
+                    count += 1
+                j += 1
+            neighbors = before + after
             if neighbors:
                 s_filled.at[idx] = np.mean(neighbors)
         return s_filled, []
