@@ -1,14 +1,14 @@
 import os
-from typing import Optional
+from typing import List
 
 from preprocessing.load_timeseries import load_timeseries_file
 
 
 def processing_data(
-    file_path: Optional[str] = None,
-    time_column: Optional[str] = None,
-    target_column: Optional[str] = None,
-    dropped_columns: Optional[list] = None,
+    file_path: str,
+    time_column: str,
+    target_column: str,
+    dropped_columns: List[str] | None = None,
 ):
     """
     Processes a time series data file into a pandas DataFrame.
