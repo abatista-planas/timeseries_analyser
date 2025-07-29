@@ -62,11 +62,3 @@ def load_timeseries_file(
         df = df.drop(columns=[c for c in dropped_columns if c in df.columns])
 
     return df
-
-
-df = load_timeseries_file(
-    file_path="data/my_timeseries.csv",
-    time_column="timestamp",
-    target_column="target",
-    dropped_columns=["id", "unnecessary_column"],
-)
