@@ -20,6 +20,7 @@ requirements = [
     "torchvision",
     "pytorch-lightning",
     "pandas-profiling",
+    "umap-learn",
 ]
 
 requirements_dev = [
