@@ -2,6 +2,7 @@ import os
 from typing import List
 
 from preprocessing.handle_nan import treat_nan_dataframe
+from preprocessing.high_correlation import drop_highly_correlated_columns
 from preprocessing.load_timeseries import load_timeseries_file
 from preprocessing.low_variance import drop_low_variance_columns
 
@@ -35,5 +36,6 @@ def processing_data(
     df = load_timeseries_file(file_path, time_column, target_column, dropped_columns)
     df = treat_nan_dataframe(df, time_column, k_neighbors=10)
     df = drop_low_variance_columns(df, time_column, target_column, threshold=1e-8)
+    df = drop_highly_correlated_columns(df, time_column, target_column, threshold=0.98)
 
     return df
