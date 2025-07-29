@@ -11,6 +11,7 @@ def handle_nan_column(
     strategy: str = "remove_row",
     model_threshold: float = 0.985,
     k_neighbors: int = 10,
+    nan_threshold: float = 0.33,  # 33%
 ):
     """
     Handle NaN in a Series using the specified strategy.
@@ -21,6 +22,7 @@ def handle_nan_column(
         strategy (str): 'remove_row', 'mean', 'model', 'neighbors_mean'.
         model_threshold (float): Minimum R² for model imputation.
         k_neighbors (int): Window for neighbors_mean.
+        nan_threshold (float): If NaN percent > threshold, always use mean.
 
     Returns:
         Tuple[pd.Series, list]: (filled_series, drop_indexes)
@@ -28,6 +30,15 @@ def handle_nan_column(
     s = series.copy()
     nan_mask = s.isna()
     drop_idxs = []
+    nan_ratio = nan_mask.mean()
+
+    if nan_ratio > nan_threshold:
+        # Force mean strategy
+        print(
+            f"Column has {nan_ratio:.1%} NaNs, filling all NaNs with mean (overrides chosen strategy)."
+        )
+        s = s.fillna(s.mean())
+        return s, []
 
     if not nan_mask.any():
         return s, []
