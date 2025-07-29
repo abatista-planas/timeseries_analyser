@@ -3,8 +3,6 @@ from typing import List
 
 import pandas as pd
 
-from preprocessing.handle_nan import treat_nan_dataframe
-
 
 def load_timeseries_file(
     file_path: str,
@@ -64,7 +62,5 @@ def load_timeseries_file(
         df = df.drop(columns=[c for c in dropped_columns if c in df.columns])
 
     df = df.sort_values(time_column).reset_index(drop=True)
-
-    df = treat_nan_dataframe(df, time_column, k_neighbors=10)
 
     return df
