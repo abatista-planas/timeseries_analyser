@@ -44,6 +44,7 @@ setup(
         "preprocessing",
         "test",
         "models",
+        "visualization",
     ],
     install_requires=requirements,
     extras_require={
