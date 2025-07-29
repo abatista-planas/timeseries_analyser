@@ -29,6 +29,8 @@ requirements_dev = [
     "pre-commit",
     "pytest",
     "pytest-cov",
+    # Type stubs
+    "pandas-stubs",
 ]
 
 setup(
