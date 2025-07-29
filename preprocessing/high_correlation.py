@@ -45,6 +45,6 @@ def drop_highly_correlated_columns(
                 to_drop.add(col2)
 
     if to_drop:
-        print(f"Dropping highly correlated columns: {list(to_drop)}")
+        print(f"Number of Dropped highly correlated columns: {len(list(to_drop))}")
     keep_cols = cols_to_exclude + [col for col in feature_cols if col not in to_drop]
     return df[keep_cols]

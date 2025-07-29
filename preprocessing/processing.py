@@ -64,4 +64,5 @@ def processing_data(
 
     df = drop_highly_correlated_columns(df, time_column, target_column, threshold=0.98)
 
+    print(f"Processed DataFrame shape: {df.shape}")
     return df

@@ -40,7 +40,8 @@ def drop_low_variance_columns(
 
     columns_to_keep = cols_to_exclude + high_var_cols
     dropped = [col for col in feature_cols if col not in high_var_cols]
+
     if dropped:
-        print(f"Dropping low-variance columns: {dropped}")
+        print(f"Dropping low-variance columns: {len(dropped)} columns dropped.")
 
     return df[columns_to_keep]
