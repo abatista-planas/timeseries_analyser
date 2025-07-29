@@ -1,13 +1,14 @@
 import os
+from typing import Optional
 
 import pandas as pd
 
 
 def load_timeseries_file(
-    file_path: str = None,
-    time_column: str = None,
-    target_column: str = None,
-    dropped_columns: list = None,
+    file_path: Optional[str] = None,
+    time_column: Optional[str] = None,
+    target_column: Optional[str] = None,
+    dropped_columns: Optional[list] = None,
 ) -> pd.DataFrame:
     """
     Loads a file into a pandas DataFrame based on file extension,
