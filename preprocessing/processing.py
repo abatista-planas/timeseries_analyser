@@ -1,6 +1,7 @@
 import os
 from typing import List
 
+from preprocessing.handle_nan import treat_nan_dataframe
 from preprocessing.load_timeseries import load_timeseries_file
 
 
@@ -31,5 +32,6 @@ def processing_data(
         raise FileNotFoundError(f"File not found: {file_path}")
 
     df = load_timeseries_file(file_path, time_column, target_column, dropped_columns)
+    df = treat_nan_dataframe(df, time_column, k_neighbors=10)
 
     return df
