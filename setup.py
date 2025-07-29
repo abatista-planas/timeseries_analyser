@@ -32,15 +32,15 @@ requirements_dev = [
 ]
 
 setup(
-    name="IOTC_Panel_Dashboard",
+    name="timeseries_analyser",
     version="0.1",
-    description="Panel-based Dashboard",
-    package_dir={"": "panel_dashboard"},
-    url="https://github.com/IRATT/IoTC.git",
+    description="A package for time series data preprocessing and analysis",
+    url="https://github.com/abatista-planas/timeseries_analyser.git",
     author="Adrian Batista",
     packages=[
         "preprocessing",
         "test",
+        "models",
     ],
     install_requires=requirements,
     extras_require={
