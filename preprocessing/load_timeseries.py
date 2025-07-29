@@ -1,14 +1,14 @@
 import os
-from typing import Optional
+from typing import List
 
 import pandas as pd
 
 
 def load_timeseries_file(
-    file_path: Optional[str] = None,
-    time_column: Optional[str] = None,
-    target_column: Optional[str] = None,
-    dropped_columns: Optional[list] = None,
+    file_path: str,
+    time_column: str,
+    target_column: str,
+    dropped_columns: List[str] | None = None,
 ) -> pd.DataFrame:
     """
     Loads a file into a pandas DataFrame based on file extension,
@@ -60,5 +60,7 @@ def load_timeseries_file(
     # Drop columns if specified
     if dropped_columns:
         df = df.drop(columns=[c for c in dropped_columns if c in df.columns])
+
+    df = df.sort_values(time_column).reset_index(drop=True)
 
     return df
