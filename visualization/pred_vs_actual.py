@@ -12,6 +12,7 @@ def plot_prediction_vs_actual(
     y_test,
     plot_type="test",  # 'test', 'train', or 'both'
     figsize=(8, 6),
+    ax=None,  # Optional axis to plot on
 ):
     """
     Plots prediction vs actual for multiple models on train and/or test data.
@@ -22,10 +23,12 @@ def plot_prediction_vs_actual(
         X_train, y_train, X_test, y_test: Data splits.
         plot_type (str): 'train', 'test', or 'both'.
         figsize (tuple): Figure size.
+         ax (matplotlib.axes.Axes): Axis to plot on. If None, creates a new figure.
     """
     assert len(models) == len(model_names), "Each model must have a corresponding name."
+    if ax is None:
+        _, ax = plt.subplots(figsize=figsize)
 
-    plt.figure(figsize=figsize)
     colors = list(mcolors.TABLEAU_COLORS.values())
     n_models = len(models)
     if n_models > len(colors):
