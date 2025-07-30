@@ -5,7 +5,7 @@ def add_features(
     df,
     time_column,
     target_column,
-    rolling_windows=[3, 6, 12],
+    rolling_windows=[3, 6, 12, 20],
     stats=["mean", "std", "min", "max"],
 ):
     """
@@ -66,11 +66,11 @@ def add_features(
         dy = df[col].diff()
         df[f"{col}_derivative"] = dy / dt
     print("Derivative shape:", df[f"{target_column}_derivative"].shape)
-    # # Second derivative
-    # d1 = df[f"{target_column}_derivative"]
-    # d1t = dt
-    # dd1 = d1.diff()
-    # ddtt = d1t  # (dt for the derivative series is still the time between points)
-    # df[f"{target_column}_second_derivative"] = dd1 / ddtt
+    # Second derivative
+    d1 = df[f"{target_column}_derivative"]
+    d1t = dt
+    dd1 = d1.diff()
+    ddtt = d1t  # (dt for the derivative series is still the time between points)
+    df[f"{target_column}_second_derivative"] = dd1 / ddtt
 
     return df
