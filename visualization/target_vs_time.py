@@ -13,12 +13,14 @@ def plot_target_vs_time(
     model_names,
     plot_type="both",  # "train", "test", or "both"
     figsize=(12, 4),
+    ax=None,  # Optional axis to plot on
 ):
     """
     Scatter plot of model predictions vs. time for train and/or test sets.
     """
     assert len(models) == len(model_names), "Number of models and names must match."
-
+    if ax is None:
+        _, ax = plt.subplots(figsize=figsize)
     colors = list(mcolors.TABLEAU_COLORS.values())
     if len(models) > len(colors):
         colors += list(mcolors.CSS4_COLORS.values())
