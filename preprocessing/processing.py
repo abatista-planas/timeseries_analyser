@@ -22,7 +22,7 @@ def processing_data(
     dropped_columns: List[str] | None = None,
     algorithm: str = "PCA",
     n_components: int = 10,
-    pca_variance: float = 1.0,
+    pca_variance: float | None = None,
     rolling_windows=[10],
     stats=["mean", "std"],
     mean_centric: bool = False,
@@ -49,7 +49,7 @@ def processing_data(
 
     df = load_timeseries_file(file_path, time_column, target_column, dropped_columns)
 
-    df = treat_nan_dataframe(df, time_column, k_neighbors=10)
+    df = treat_nan_dataframe(df, time_column, target_column, k_neighbors=10)
 
     df = drop_low_variance_columns(df, time_column, target_column, threshold=1e-8)
 
@@ -120,7 +120,7 @@ def processing_data(
             df[target_column] - df[f"{target_column}_roll{rolling_windows[0]}_mean"]
         )
 
-    df = treat_nan_dataframe(df, time_column, k_neighbors=10)
+    df = treat_nan_dataframe(df, time_column, target_column, k_neighbors=10)
 
     df = drop_low_variance_columns(df, time_column, target_column, threshold=1e-8)
 
