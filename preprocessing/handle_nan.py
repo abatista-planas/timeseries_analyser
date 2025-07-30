@@ -1,66 +1,43 @@
-from typing import Optional
-
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.impute import KNNImputer
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 
 
 def treat_nan_dataframe(
-    df: pd.DataFrame,
-    time_column: str,
-    strategies: Optional[dict] = None,
-    nan_threshold: float = 0.33,
-    k_neighbors: int = 10,
-) -> pd.DataFrame:
-    """
-    Treats NaNs in a DataFrame:
-      - First, handles the time column with the specified/default strategy ('model').
-      - Then, handles all other columns (target/features) with 'neighbors_mean' strategy by default.
+    df,
+    time_column,
+    target_column,
+    k_neighbors=10,
+    feature_strategy="knn",  # Default strategy for features
+):
+    df = df.copy()
 
-    Args:
-        df: Input DataFrame.
-        time_column: Name of the time/datetime column.
-        strategies: Optional dict mapping columns to dicts of handle_nan_column arguments.
-        nan_threshold: If >nan_threshold NaN, always fill with mean.
-        k_neighbors: Number of neighbors for neighbors_mean.
+    # 1. Print and drop rows where target is NaN
+    num_nan = df[target_column].isna().sum()
+    print(f"Number of NaNs in '{target_column}': {num_nan}")
+    df = df[df[target_column].notna()]
 
-    Returns:
-        pd.DataFrame: DataFrame with NaNs treated and time column as datetime.
-    """
-    out_df = df.copy()
-    strategies = strategies or {}
+    # 2. Impute remaining feature columns
+    feature_cols = [
+        col for col in df.columns if col not in [time_column, target_column]
+    ]
 
-    # 1. Treat time column first
-    time_args = strategies.get(time_column, {"strategy": "model"})
-    filled_time, drop_time_idx = handle_nan_column(
-        out_df[time_column], predictors=None, nan_threshold=nan_threshold, **time_args
-    )
-    out_df[time_column] = pd.to_datetime(filled_time)
-    if drop_time_idx:
-        out_df = out_df.drop(index=drop_time_idx)
+    if feature_strategy == "knn":
+        imputer = KNNImputer(n_neighbors=k_neighbors)
+        df[feature_cols] = imputer.fit_transform(df[feature_cols])
+    elif feature_strategy == "mean":
+        df[feature_cols] = df[feature_cols].fillna(df[feature_cols].mean())
+    elif feature_strategy == "median":
+        df[feature_cols] = df[feature_cols].fillna(df[feature_cols].median())
+    elif feature_strategy == "zero":
+        df[feature_cols] = df[feature_cols].fillna(0)
+    else:
+        raise ValueError(f"Unknown feature_strategy: {feature_strategy}")
 
-    # 2. Treat all other columns with neighbors_mean unless overridden
-    for col in out_df.columns:
-        if col == time_column:
-            continue
-
-        col_args = strategies.get(
-            col, {"strategy": "neighbors_mean", "k_neighbors": k_neighbors}
-        )
-        predictors = None
-        if col_args.get("strategy") == "model":
-            predictors = out_df.drop(columns=[col])
-        filled_col, drop_col_idx = handle_nan_column(
-            out_df[col], predictors=predictors, nan_threshold=nan_threshold, **col_args
-        )
-        out_df[col] = filled_col
-        if drop_col_idx:
-            out_df = out_df.drop(index=drop_col_idx)
-
-    out_df = out_df.reset_index(drop=True)
-    return out_df
+    return df
 
 
 def handle_nan_column(
