@@ -1,4 +1,3 @@
-import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 
 
@@ -16,64 +15,62 @@ def plot_target_vs_time(
     ax=None,  # Optional axis to plot on
 ):
     """
-    Scatter plot of model predictions vs. time for train and/or test sets.
+    Line plot of model predictions vs. time for train and/or test sets.
     """
     assert len(models) == len(model_names), "Number of models and names must match."
     if ax is None:
         _, ax = plt.subplots(figsize=figsize)
-    colors = list(mcolors.TABLEAU_COLORS.values())
-    if len(models) > len(colors):
-        colors += list(mcolors.CSS4_COLORS.values())
+    # Use tab10 for distinct prediction colors
+    color_map = plt.get_cmap("tab10")
+    n_colors = color_map.N
 
-    plt.figure(figsize=figsize)
-
-    # Plot actual values
+    # Plot actual values as lines
     if plot_type in ["train", "both"]:
-        plt.scatter(
+        ax.plot(
             train_time,
             y_train,
             color="gray",
-            alpha=0.5,
+            alpha=0.7,
             label="Actual (Train)",
-            marker="o",
+            linewidth=1,
         )
     if plot_type in ["test", "both"]:
-        plt.scatter(
+        ax.plot(
             test_time,
             y_test,
             color="black",
-            alpha=0.5,
+            alpha=0.7,
             label="Actual (Test)",
-            marker="o",
+            linewidth=1,
         )
 
-    # Plot model predictions
+    # Plot model predictions as lines, with separate color for train and test
     for i, (model, name) in enumerate(zip(models, model_names)):
-        color = colors[i]
+        color_train = color_map((2 * i) % n_colors)
+        color_test = color_map((2 * i + 1) % n_colors)
         if plot_type in ["train", "both"]:
             y_train_pred = model.predict(X_train)
-            plt.scatter(
+            ax.plot(
                 train_time,
                 y_train_pred,
-                color=color,
+                color=color_train,
                 alpha=0.85,
-                label=f"{name} (Train)",
-                marker=".",
+                label=f"{name} (Train Pred.)",
+                linewidth=1,
             )
         if plot_type in ["test", "both"]:
             y_test_pred = model.predict(X_test)
-            plt.scatter(
+            ax.plot(
                 test_time,
                 y_test_pred,
-                color=color,
-                alpha=0.4,
-                label=f"{name} (Test)",
-                marker=".",
+                color=color_test,
+                alpha=0.7,
+                label=f"{name} (Test Pred.)",
+                linewidth=1,
+                linestyle="--",
             )
 
-    plt.xlabel("Time")
-    plt.ylabel("Target")
-    plt.title("Predictions vs Time (Scatter)")
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
+    ax.set_xlabel("Time")
+    ax.set_ylabel("Target")
+    ax.set_title("Predictions vs Time (Line Plot)")
+    ax.legend()

@@ -23,7 +23,7 @@ def plot_prediction_vs_actual(
         X_train, y_train, X_test, y_test: Data splits.
         plot_type (str): 'train', 'test', or 'both'.
         figsize (tuple): Figure size.
-         ax (matplotlib.axes.Axes): Axis to plot on. If None, creates a new figure.
+        ax (matplotlib.axes.Axes): Axis to plot on. If None, creates a new figure.
     """
     assert len(models) == len(model_names), "Each model must have a corresponding name."
     if ax is None:
@@ -40,11 +40,12 @@ def plot_prediction_vs_actual(
         # Train predictions
         if plot_type in ["train", "both"]:
             y_train_pred = model.predict(X_train)
-            plt.scatter(
+            ax.scatter(
                 y_train,
                 y_train_pred,
                 color=color,
-                alpha=0.85,
+                alpha=0.5,
+                s=5,
                 marker="o",
                 label=f"{name} (train)",
             )
@@ -52,24 +53,24 @@ def plot_prediction_vs_actual(
         if plot_type in ["test", "both"]:
             y_test_pred = model.predict(X_test)
             # Lighter color for test
-            lighter_color = mcolors.to_rgba(color, alpha=0.45)
-            plt.scatter(
+            lighter_color = mcolors.to_rgba(color, alpha=0.1)
+            ax.scatter(
                 y_test,
                 y_test_pred,
                 color=lighter_color,
                 marker="o",
+                s=5,
                 label=f"{name} (test)",
             )
 
     # 1:1 reference line
     all_y = np.concatenate([y_train, y_test])
     y_min, y_max = np.min(all_y), np.max(all_y)
-    plt.plot(
+    ax.plot(
         [y_min, y_max], [y_min, y_max], "k--", linewidth=1, label="Perfect Prediction"
     )
-    plt.xlabel("Actual")
-    plt.ylabel("Predicted")
-    plt.legend()
-    plt.title("Prediction vs Actual")
-    plt.tight_layout()
-    plt.show()
+    ax.set_xlabel("Actual")
+    ax.set_ylabel("Predicted")
+    ax.legend()
+    ax.set_title("Prediction vs Actual")
+    # Do NOT call plt.tight_layout() or plt.show() here!
