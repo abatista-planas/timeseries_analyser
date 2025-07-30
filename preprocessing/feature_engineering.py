@@ -23,7 +23,11 @@ def add_features(
     """
     df = df.copy()
     df[time_column] = pd.to_datetime(df[time_column])
+    feature_cols = [
+        col for col in df.columns if col not in [time_column, target_column]
+    ]
 
+    print("Feature columns:", feature_cols)
     # Cyclical features
     # df["minute"] = df[time_column].dt.minute
     # df["minute_sin"] = np.sin(2 * np.pi * df["minute"] / 60)
@@ -55,7 +59,9 @@ def add_features(
 
     # Time difference in seconds (as float)
     dt = df[time_column].astype("int64").diff() / 1e9  # nanoseconds to seconds
-    mycols = [target_column]
+    mycols = [
+        target_column,
+    ]
     for col in mycols:
         dy = df[col].diff()
         df[f"{col}_derivative"] = dy / dt

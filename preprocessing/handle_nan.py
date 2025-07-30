@@ -45,6 +45,7 @@ def treat_nan_dataframe(
     for col in out_df.columns:
         if col == time_column:
             continue
+
         col_args = strategies.get(
             col, {"strategy": "neighbors_mean", "k_neighbors": k_neighbors}
         )

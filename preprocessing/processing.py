@@ -105,6 +105,8 @@ def processing_data(
     else:
         raise ValueError(f"Unsupported algorithm: {algorithm}")
 
+    df = normalize_features(df, time_column, target_column, strategy="StandardScaler")
+
     df = add_features(
         df,
         time_column,
