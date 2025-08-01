@@ -15,6 +15,18 @@ from preprocessing.low_variance import drop_low_variance_columns
 from preprocessing.normalization import normalize_features
 
 
+def drop_extra_time_columns(df, time_column):
+    """
+    Drops all columns whose names contain 'time' (case-insensitive),
+    except for the specified time_column.
+    """
+    # Make a list of columns to drop
+    to_drop = [
+        col for col in df.columns if ("time" in col.lower()) and (col != time_column)
+    ]
+    return df.drop(columns=to_drop)
+
+
 def processing_data(
     file_path: str,
     time_column: str,
@@ -53,7 +65,7 @@ def processing_data(
 
     df = drop_low_variance_columns(df, time_column, target_column, threshold=1e-8)
 
-    df = drop_highly_correlated_columns(df, time_column, target_column, threshold=0.99)
+    df = drop_highly_correlated_columns(df, time_column, target_column, threshold=0.95)
 
     df = normalize_features(df, time_column, target_column, strategy="StandardScaler")
 
@@ -124,7 +136,7 @@ def processing_data(
 
     df = drop_low_variance_columns(df, time_column, target_column, threshold=1e-8)
 
-    df = drop_highly_correlated_columns(df, time_column, target_column, threshold=0.98)
+    df = drop_highly_correlated_columns(df, time_column, target_column, threshold=0.95)
 
     print(f"Processed DataFrame shape: {df.shape}")
     return df

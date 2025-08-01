@@ -13,10 +13,10 @@ from visualization.basic_plot import plot_full_summary_grid
 
 
 def main():
-    data_path = "/home/albplanas/Desktop/Programming/IoTC/Data/15Days/15_Day_RD1.csv"
-    time_column = "Time"
-    target_column = "Q2910"
-    dropped_columns = ["Q2934", "Q2933"]
+    data_path = "/home/albplanas/Downloads/NaKika_MCL_merged.xlsx"
+    time_column = "Datetime"
+    target_column = "Primary process value (ILSX_140:Value)"
+    dropped_columns = ["Date", "Time", "ModelTime"]
 
     df = processing_data(
         data_path,
